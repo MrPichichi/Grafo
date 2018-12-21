@@ -11,88 +11,103 @@ import java.util.PriorityQueue;
 import java.util.Comparator; 
 import java.util.HashMap;
   
-public class prims { 
+public class prims {
+    static HashMap<Integer, ArrayList<Double>> nodos = new HashMap<>();
+    static HashMap<Integer, Double> pesos = new HashMap<>();
     class node1 { 
   
-        // Almacena el vértice de destino en la lista de adyacencia.
-        int destino; 
+        // Stores destination vertex in adjacency list 
+        int dest; 
   
-        // Almacena el peso de un vértice en la lista de adyacencia.
-        int peso; 
+        // Stores weight of a vertex in adjacency list 
+        double weight; 
   
         // Constructor 
-        node1(int a, int b) 
+        node1(int a, Double b) 
         { 
-            destino = a; 
-            peso = b; 
+            dest = a; 
+            weight = b; 
         } 
     } 
     static class Graph { 
   
-        // Numero de vertices en el grafo 
-        int vertices; 
-  
-        // Lista de nodos adyacentes de un vértice dado
-        LinkedList<node1>[] adyacentes; 
+        // Number of vertices in the graph 
+        int V; 
+        File construccion = new File("test.txt");
+        BufferedReader reader = null;
+        
+        
+        
+        // List of adjacent nodes of a given vertex 
+        LinkedList<node1>[] adj; 
   
         // Constructor 
         Graph(int e) 
         { 
-            vertices = e; 
-            adyacentes = new LinkedList[vertices]; 
-            for (int o = 0; o < vertices; o++) 
-                adyacentes[o] = new LinkedList<>(); 
+            V = e; 
+            adj = new LinkedList[V]; 
+            for (int o = 0; o < V; o++) 
+                adj[o] = new LinkedList<>(); 
         } 
     } 
   
-    // Almacena un vértice y su valor clave correspondiente
+    // class to represent a node in PriorityQueue 
+    // Stores a vertex and its corresponding 
+    // key value 
     class node { 
-        int vertice; 
-        int key; 
+        int vertex; 
+        double key; 
     } 
+  
     // Comparator class created for PriorityQueue 
     // returns 1 if node0.key > node1.key 
     // returns 0 if node0.key < node1.key and 
     // returns -1 otherwise 
     class comparator implements Comparator<node> { 
+  
         @Override
         public int compare(node node0, node node1) 
         { 
-            return node0.key - node1.key; 
+            return  (int) (node0.key - node1.key); 
         } 
     } 
   
     // method to add an edge 
     // between two vertices 
-    void addEdge(Graph graph, int nodo1, int nodo2, int pesoEntreNodos) 
+    void addEdge(Graph graph, int src, int dest, Double weight) 
     { 
-        node1 node0 = new node1(nodo2, pesoEntreNodos); 
-        node1 node = new node1(nodo1, pesoEntreNodos); 
-        graph.adyacentes[nodo1].addLast(node0); 
-        graph.adyacentes[nodo2].addLast(node); 
+        node1 node0 = new node1(dest, weight);
+        nodos.get(src).get(2);
+        //System.out.println("Nodo src: "+src+" "+nodos.get(src).get(2));
+        //System.out.println("Nodo dest: "+dest+" "+nodos.get(dest).get(2));
+        node1 node = new node1(src, weight); 
+        //System.out.println(graph.adj.length);
+        graph.adj[nodos.get(src).get(2).intValue()].addLast(node0); 
+        graph.adj[nodos.get(dest).get(2).intValue()].addLast(node); 
     } 
-  
+    
     // method used to find the mst 
     void prims_mst(Graph graph) 
     { 
+  
         // Whether a vertex is in PriorityQueue or not 
-        Boolean[] mstset = new Boolean[graph.vertices]; 
-        node[] e = new node[graph.vertices]; 
+        Boolean[] mstset = new Boolean[graph.V]; 
+        node[] e = new node[graph.V]; 
   
         // Stores the parents of a vertex 
-        int[] parent = new int[graph.vertices]; 
+        int[] parent = new int[graph.V]; 
   
-        for (int o = 0; o < graph.vertices; o++) 
+        for (int o = 0; o < graph.V; o++) 
             e[o] = new node(); 
   
-        for (int o = 0; o < graph.vertices; o++) { 
+        for (int o = 0; o < graph.V; o++) { 
   
             // Initialize to false 
             mstset[o] = false; 
   
             // Initialize key values to infinity 
             e[o].key = Integer.MAX_VALUE; 
-            e[o].vertice = o; 
+            e[o].vertex = o; 
             parent[o] = -1; 
         } 
   
@@ -105,9 +120,9 @@ public class prims {
         e[0].key = 0; 
   
         // PriorityQueue 
-        PriorityQueue<node> queue = new PriorityQueue<>(graph.vertices, new comparator()); 
+        PriorityQueue<node> queue = new PriorityQueue<>(graph.V, new comparator()); 
   
-        for (int o = 0; o < graph.vertices; o++) 
+        for (int o = 0; o < graph.V; o++) 
             queue.add(e[o]); 
   
         // Loops until the PriorityQueue is not empty 
@@ -117,29 +132,29 @@ public class prims {
             node node0 = queue.poll(); 
   
             // Include that node into mstset 
-            mstset[node0.vertice] = true; 
+            mstset[node0.vertex] = true; 
   
             // For all adjacent vertex of the extracted vertex V 
-            for (node1 iterator : graph.adyacentes[node0.vertice]) { 
+            for (node1 iterator : graph.adj[node0.vertex]) { 
   
                 // If V is in PriorityQueue 
-                if (mstset[iterator.destino] == false) { 
+                if (mstset[nodos.get(iterator.dest).get(2).intValue()] == false) { 
                     // If the key value of the adjacent vertex is 
                     // more than the extracted key 
                     // update the key value of adjacent vertex 
                     // to update first remove and add the updated vertex 
-                    if (e[iterator.destino].key > iterator.peso) { 
-                        queue.remove(e[iterator.destino]); 
-                        e[iterator.destino].key = iterator.peso; 
-                        queue.add(e[iterator.destino]); 
-                        parent[iterator.destino] = node0.vertice; 
+                    if (e[nodos.get(iterator.dest).get(2).intValue()].key > iterator.weight) { 
+                        queue.remove(e[nodos.get(iterator.dest).get(2).intValue()]); 
+                        e[nodos.get(iterator.dest).get(2).intValue()].key = iterator.weight; 
+                        queue.add(e[nodos.get(iterator.dest).get(2).intValue()]); 
+                        parent[nodos.get(iterator.dest).get(2).intValue()] = node0.vertex; 
                     } 
                 } 
             } 
         } 
   
         // Prints the vertex pair of mst 
-        for (int o = 1; o < graph.vertices; o++) 
+        for (int o = 0; o < graph.V; o++) 
             System.out.println(parent[o] + " "
                                + "-"
                                + " " + o); 
@@ -147,12 +162,13 @@ public class prims {
   
     public static void main(String[] args) throws FileNotFoundException, IOException 
     { 
-        int V = 9; 
+        //int V = 9; 
   
         Graph graph = null; 
         prims e = new prims(); 
+        int vert=0;
         
-        HashMap<Integer, ArrayList<Double>> nodos = new HashMap<>();
+        
         //Construcción
         File construccion = new File("test.txt");
         BufferedReader reader = null;
@@ -165,8 +181,7 @@ public class prims {
                // System.out.println(linea);
                 int numSpaces = linea.replaceAll("[^ ]", "").length();
                 if( numSpaces==0){
-                    //numCasas=Integer.parseInt(linea);
-                    numCasas=9;
+                    numCasas=Integer.parseInt(linea);
                     graph= new Graph(numCasas);
                     System.out.println("\n Numro de casas: "+numCasas);
                 }
@@ -186,18 +201,21 @@ public class prims {
                         if(n ==linea.length()-1){
                             coordenadas.add(Double.parseDouble(val));
                         }
-                }   
+                    }   
                     ArrayList<Double> coord= new ArrayList<>();
                     coord.add(coordenadas.get(1));
                     coord.add(coordenadas.get(2));
+                    coord.add((double) vert);
+                    vert++;
                     nodos.put(coordenadas.get(0).intValue(), coord);
-                    //System.out.println(nodos.get(coordenadas.get(0).intValue()));
+                    
                     coordNodos.add(coordenadas);
                     //e.addEdge(graph, Integer.parseInt(valores.get(0)),Integer.parseInt(valores.get(1)), Integer.parseInt(valores.get(2)));
                 
                 }
                  if( numSpaces==1){
-                    ArrayList<Double> coordenadas=new ArrayList<>();
+                    //System.out.println("Nodos: "+nodos.size());
+                    ArrayList<Integer> nodosEnlazados=new ArrayList<>();
                     String val="";
                     for(int n=0; n <linea.length (); n++) { 
                         char c = linea.charAt (n); 
@@ -206,36 +224,38 @@ public class prims {
                             val+=s;
                         }
                         if(" ".equals(s)){
-                            coordenadas.add(Double.parseDouble(val));
+                            nodosEnlazados.add(Integer.parseInt(val));
                             val="";
                         }
                         if(n ==linea.length()-1){
-                            coordenadas.add(Double.parseDouble(val));
+                            nodosEnlazados.add(Integer.parseInt(val));
                         }
                     }
-                    System.out.println(coordenadas.toString());
-                    ArrayList<Double> cord0=nodos.get(coordenadas.get(0).intValue());
-                    ArrayList<Double> cord1=nodos.get(coordenadas.get(1).intValue());
+                    //System.out.println(nodosEnlazados.toString());
+                    ArrayList<Double> cord0=nodos.get(nodosEnlazados.get(0));
+                    ArrayList<Double> cord1=nodos.get(nodosEnlazados.get(1));
+                    ///System.out.println(cord0+"\n"+cord1);
                     double dN=Math.sqrt(Math.pow((cord0.get(0)-cord1.get(0)), 2)+Math.pow((cord0.get(1)-cord1.get(1)), 2));
-                    
+                   
+                    e.addEdge(graph, nodosEnlazados.get(0), nodosEnlazados.get(1), dN);
+                    //System.out.println("Distancia: "+dN);
                  }
-                
-               
-        }    
-        //crea arista entre 2 vertices (grafo, identificador nodo1, identificador nodo2, peso entre nodos)
-        e.addEdge(graph, 0, 7, 8); 
-        e.addEdge(graph, 1, 2, 8); 
-        e.addEdge(graph, 1, 7, 11); 
-        e.addEdge(graph, 2, 3, 7); 
-        e.addEdge(graph, 2, 8, 2); 
-        e.addEdge(graph, 2, 5, 4); 
-        e.addEdge(graph, 3, 4, 9); 
-        e.addEdge(graph, 3, 5, 14); 
-        e.addEdge(graph, 4, 5, 10); 
-        e.addEdge(graph, 5, 6, 2); 
-        e.addEdge(graph, 6, 7, 1); 
-        e.addEdge(graph, 6, 8, 6); 
-        e.addEdge(graph, 7, 8, 7); 
+        }  
+//        e.addEdge(graph, 0, 1, 4.0); 
+//        e.addEdge(graph, 0, 7, 8.0); 
+//        e.addEdge(graph, 1, 2, 8.0); 
+//        e.addEdge(graph, 1, 7, 11.0); 
+//        e.addEdge(graph, 2, 3, 7.0); 
+//        e.addEdge(graph, 2, 8, 2.0); 
+//        e.addEdge(graph, 2, 5, 4.0); 
+//        e.addEdge(graph, 3, 4, 9.0); 
+//        e.addEdge(graph, 3, 5, 14.0); 
+//        e.addEdge(graph, 4, 5, 10.0); 
+//        e.addEdge(graph, 5, 6, 2.0); 
+//        e.addEdge(graph, 6, 7, 1.0); 
+//        e.addEdge(graph, 6, 8, 6.0); 
+//        e.addEdge(graph, 7, 8, 7.0); 
+  
         // Method invoked 
         e.prims_mst(graph); 
     } 
