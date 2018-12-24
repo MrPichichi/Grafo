@@ -134,7 +134,7 @@ public class prims {
         int nod=0;
         
         //Construcción
-        File construccion = new File("test.txt");
+        File construccion = new File(args[0]);
         BufferedReader reader = null;
         int numCasas;
         reader = new BufferedReader(new FileReader(construccion));
